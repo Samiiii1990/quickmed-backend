@@ -21,5 +21,9 @@ export class FirebaseService {
 
     // Initialize the Database after Firebase app is initialized
     this.db = admin.database();
+    
+  }
+  getDatabase() {
+    return admin.database();
   }
 }

@@ -1,12 +1,11 @@
 import { Injectable } from '@nestjs/common';  
 import axios from 'axios';
 import * as admin from 'firebase-admin';  
+import { FirebaseService } from 'src/firebase/firebase.service';
 
 @Injectable()  
 export class NotificationsService {  
-  constructor() {  
-    // Asegúrate de que Firebase se haya inicializado  
-  }  
+  constructor(private readonly firebaseService: FirebaseService) {}
 
   async sendPushNotification(token: string, title: string, body: string) {  
     const message = {  

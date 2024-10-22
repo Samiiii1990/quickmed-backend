@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { FirebaseService } from '../firebase/firebase.service'; // Adjust the import according to your structure
-import { CreateAppointmentDto } from './dto/create-appointment.dto'; // Adjust the import for your DTOs
+import { FirebaseService } from '../firebase/firebase.service'; 
+import { CreateAppointmentDto } from './dto/create-appointment.dto';
 
 @Injectable()
 export class AppointmentsService {
@@ -8,27 +8,26 @@ export class AppointmentsService {
 
   async createAppointment(createAppointmentDto: CreateAppointmentDto) {
     const db = this.firebaseService.getDatabase();
-    const newAppointmentRef = db.ref('appointments').push(); // Create a new appointment reference
+    const newAppointmentRef = db.ref('appointments').push();
   
-    // Set the appointment data, including the generated ID
+
     await newAppointmentRef.set({
-      id: newAppointmentRef.key, // Add the new appointment ID
-      ...createAppointmentDto, // Spread the other appointment details
+      id: newAppointmentRef.key,
+      ...createAppointmentDto,
     });
   
-    // Retrieve and return the complete appointment object
     const createdAppointment = {
       id: newAppointmentRef.key,
       ...createAppointmentDto,
     };
   
-    return createdAppointment; // Return the entire appointment object
+    return createdAppointment; 
   }
   
   async getAppointmentsByPatient(patientId: string) {
     const db = this.firebaseService.getDatabase();
     const snapshot = await db.ref('appointments').orderByChild('patientId').equalTo(patientId).once('value');
-    return snapshot.val(); // Return the appointments for the specified patient
+    return snapshot.val(); 
   }
 
   async findAppointmentById(id: string) {

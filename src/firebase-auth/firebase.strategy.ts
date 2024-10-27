@@ -11,7 +11,7 @@ export class FirebaseStrategy extends AuthGuard('firebase-token') {
  }  
 
  async validate(payload) {  
- const user = await this.firebaseAuthService.verifyIdToken(payload.id);  
+ const user = await this.firebaseAuthService.validateToken(payload.id);  
  return user;  
  }  
 }  

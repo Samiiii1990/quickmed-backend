@@ -3,19 +3,20 @@ import { JwtService } from '@nestjs/jwt';
 import { FirebaseService } from '../firebase/firebase.service';
 import * as admin from 'firebase-admin';
 import axios from 'axios';
+import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class FirebaseAuthService {
   private auth: admin.auth.Auth;
 
   constructor(
-    private jwtService: JwtService,
+    private readonly jwtService: JwtService,
     private firebaseService: FirebaseService,
   ) {
     this.auth = admin.auth();
   }
 
-  async verifyIdToken(idToken: string) {
+  async validateToken(idToken: string) {
     try {
       const decodedToken = await this.auth.verifyIdToken(idToken);
       return decodedToken;
@@ -47,7 +48,7 @@ export class FirebaseAuthService {
       const { idToken, localId, email: userEmail } = response.data;
       
       // Verify the token to get the user information
-      const user = await this.verifyIdToken(idToken);
+      const user = await this.validateToken(idToken);
       
       // Generate JWT for the session
       const jwt = await this.generateJwt(user);

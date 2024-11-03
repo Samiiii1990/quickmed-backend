@@ -3,12 +3,22 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { NotificationsModule } from './notifications/notifications.module';
-import { FirebaseAuthModule } from './firebase-auth/firebase-auth.module';  
+import { FirebaseAuthModule } from './firebase-auth/firebase-auth.module';
 import { JwtStrategy } from './firebase-auth/jwt.strategy';
 import { AuthController } from './firebase-auth/firebase-auth.controller';
+import { DoctorsModule } from './doctors/doctors.module';
+import { DoctorsController } from './doctors/doctors.controller';
+import { DoctorsService } from './doctors/doctors.service';
+import { PatientsModule } from './patients/patients.module';
 @Module({
-  imports: [AppointmentsModule, NotificationsModule,FirebaseAuthModule],
-  controllers: [AppController,AuthController],
-  providers: [AppService,JwtStrategy],
+  imports: [
+    AppointmentsModule,
+    NotificationsModule,
+    FirebaseAuthModule,
+    DoctorsModule,
+    PatientsModule
+  ],
+  controllers: [AppController, AuthController, DoctorsController],
+  providers: [AppService, JwtStrategy, DoctorsService],
 })
 export class AppModule {}

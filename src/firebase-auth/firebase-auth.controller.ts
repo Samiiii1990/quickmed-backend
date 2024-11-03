@@ -9,7 +9,6 @@ export class AuthController {
   async register(@Body('email') email: string, @Body('password') password: string) {
     return this.firebaseAuthService.createUser(email, password);
   }
-
   // Login with email and password
   @Post('login')
   async login(@Body('email') email: string, @Body('password') password: string) {

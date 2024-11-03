@@ -1,65 +1,64 @@
-import { Injectable } from '@nestjs/common';
-import { FirebaseService } from '../firebase/firebase.service'; 
+import { Injectable, NotFoundException } from '@nestjs/common';  
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
+import { PatientDto } from 'src/patients/dto/patient.dto';
+import { FirebaseService } from 'src/firebase/firebase.service';
 
-@Injectable()
-export class AppointmentsService {
-  constructor(private readonly firebaseService: FirebaseService) {}
+@Injectable()  
+export class AppointmentService {  
+  constructor(private readonly firebaseService: FirebaseService) {}  
 
-  async createAppointment(createAppointmentDto: CreateAppointmentDto) {
+  async createAppointment(patientId: string, appointmentDto: CreateAppointmentDto) {
+    // Obtener los datos del paciente
+    const patientData = await this.getPatientData(patientId);
+    
+    // Aquí puedes usar patientData para cualquier lógica adicional que necesites al crear la cita
     const db = this.firebaseService.getDatabase();
     const newAppointmentRef = db.ref('appointments').push();
-  
-
+    
+    // Guarda la cita junto con los datos del paciente
     await newAppointmentRef.set({
       id: newAppointmentRef.key,
-      ...createAppointmentDto,
+      patientId,
+      patientData,  // Incluye los datos del paciente si es necesario
+      ...appointmentDto,
     });
-  
-    const createdAppointment = {
-      id: newAppointmentRef.key,
-      ...createAppointmentDto,
-    };
-  
-    return createdAppointment; 
+
+    return { id: newAppointmentRef.key };
   }
-  
-  async getAppointmentsByPatient(patientId: string) {
+
+  private async getPatientData(patientId: string): Promise<PatientDto> {
     const db = this.firebaseService.getDatabase();
-    const snapshot = await db.ref('appointments').orderByChild('patientId').equalTo(patientId).once('value');
-    return snapshot.val(); 
-  }
-
-  async findAppointmentById(id: string) {
-    const db = this.firebaseService.getDatabase(); // Get the Firebase database instance
-    const snapshot = await db.ref('appointments').child(id).once('value'); // Query the specific appointment by ID
-    return snapshot.val(); // Return the appointment data
-  }
-
-  async updateAppointment(id: string, appointmentData: any) {
-    const db = this.firebaseService.getDatabase();
-    const appointmentRef = db.ref('appointments').child(id);
-
-    // Check if the appointment exists
-    const snapshot = await appointmentRef.once('value');
+    const snapshot = await db.ref('patients').child(patientId).once('value');
 
     if (!snapshot.exists()) {
-        return { success: false, message: 'Appointment not found.' }; // Return if appointment doesn't exist
+      throw new NotFoundException(`Patient with ID ${patientId} not found`);
     }
 
-    // Update the appointment data
-    await appointmentRef.update(appointmentData); 
-    return { success: true }; // Return success response
-}
-  async cancelAppointment(id: string) {
-    const db = this.firebaseService.getDatabase();
-    await db.ref('appointments').child(id).remove(); // Remove the appointment
-    return { success: true }; // Return success response
+    return snapshot.val();
   }
+  async getAppointmentsByPatientId(patientId: string) {
+    const db = this.firebaseService.getDatabase();
+    const snapshot = await db.ref('appointments').orderByChild('patientId').equalTo(patientId).once('value');
 
-  async getAppointments() {
-    const db = this.firebaseService.getDatabase();
-    const snapshot = await db.ref('appointments').once('value'); // Get all appointments
-    return snapshot.val(); // Return all appointment data
-  }
+    const appointments = snapshot.val();
+    if (!appointments) {
+        return []; // Retorna un array vacío si no hay citas
+    }
+
+    // Aseguramos que `appointments` es un objeto antes de hacer el spread
+    return Object.entries(appointments).map(([key, value]) => {
+        // Verificamos que value es un objeto para evitar el error de propagación
+        if (typeof value === 'object' && value !== null) {
+            return {
+                id: key,
+                ...value, // Usamos el spread operator aquí
+            };
+        } else {
+            // Manejo de error si value no es un objeto
+            console.error(`Expected an object for appointment value with key ${key}, but got ${typeof value}.`);
+            return { id: key }; // Devuelve al menos el id
+        }
+    });
+}
+  
 }

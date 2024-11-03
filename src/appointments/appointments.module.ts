@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
-import { AppointmentsService } from './appointments.service';
-import { AppointmentsController } from './appointments.controller';
+
 import { FirebaseModule } from 'src/firebase/firebase.module';
+import { AppointmentService } from './appointments.service';
+import { AppointmentController } from './appointments.controller';
 
 @Module({
   imports: [FirebaseModule],
-  providers: [AppointmentsService],
-  controllers: [AppointmentsController]
+  providers: [AppointmentService],
+  controllers: [AppointmentController]
 })
 export class AppointmentsModule {}

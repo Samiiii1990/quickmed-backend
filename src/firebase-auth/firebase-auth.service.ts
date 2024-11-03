@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { FirebaseService } from '../firebase/firebase.service';
 import * as admin from 'firebase-admin';
 import axios from 'axios';
-import * as jwt from 'jsonwebtoken';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class FirebaseAuthService {
@@ -27,10 +27,21 @@ export class FirebaseAuthService {
   }
 
   async createUser(email: string, password: string) {
-    return await this.auth.createUser({
+    const userRecord = await this.auth.createUser({
       email,
       password,
     });
+  
+    // Generar un patientId único
+    const patientId = uuidv4(); // Genera un UUID como patientId
+  
+    // Guardar el usuario en la base de datos junto con el patientId
+    await this.firebaseService.getDatabase().ref(`/users/${userRecord.uid}`).set({
+      email,
+      patientId, // Almacena el patientId asociado al usuario
+    });
+  
+    return userRecord; // Retorna el userRecord si es necesario
   }
 
   // New method to login with email and password using Firebase REST API
@@ -52,8 +63,10 @@ export class FirebaseAuthService {
       
       // Generate JWT for the session
       const jwt = await this.generateJwt(user);
-      
-      return { access_token: jwt, email: userEmail, uid: localId };
+      const userData = await this.getUserData(localId);
+      console.log("🚀 ~ FirebaseAuthService ~ loginWithEmailAndPassword ~ userData:", userData)
+
+      return { access_token: jwt, email: userEmail, uid: localId, patientId: userData.patientId };
     } catch (error) {
       console.error('Error logging in with email and password:', error);
       throw new UnauthorizedException('Invalid email or password');
@@ -65,8 +78,8 @@ export class FirebaseAuthService {
     return this.jwtService.sign(payload);
   }
 
-  async getUserData(uid: string) {
+async getUserData(uid: string) {
     const userData = await this.firebaseService.getDatabase().ref(`/users/${uid}`).once('value');
-    return userData.val();
-  }
+    return userData.val(); // Verifica que esto devuelva el objeto que esperas
+}
 }

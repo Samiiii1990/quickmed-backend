@@ -63,16 +63,49 @@ export class FirebaseAuthService {
       
       // Generate JWT for the session
       const jwt = await this.generateJwt(user);
-      const userData = await this.getUserData(localId);
-      console.log("🚀 ~ FirebaseAuthService ~ loginWithEmailAndPassword ~ userData:", userData)
-
-      return { access_token: jwt, email: userEmail, uid: localId, patientId: userData.patientId };
+      
+      // Obtener patientId asociado en la colección patients
+      const patientId = await this.getPatientIdByEmail(userEmail); // Nueva función para obtener patientId
+      if (!patientId) {
+        throw new UnauthorizedException('Patient not found');
+      }
+  
+      return { access_token: jwt, email: userEmail, uid: localId, patientId };
     } catch (error) {
       console.error('Error logging in with email and password:', error);
       throw new UnauthorizedException('Invalid email or password');
     }
   }
-
+  
+  // Nueva función para obtener el patientId desde la colección patients
+  async getPatientIdByUserId(userId: string): Promise<string | null> {
+    const db = this.firebaseService.getDatabase();
+    const snapshot = await db.ref('patients').orderByChild('userId').equalTo(userId).once('value');
+    
+    if (snapshot.exists()) {
+      const patients = snapshot.val();
+      const patientKeys = Object.keys(patients);
+      if (patientKeys.length > 0) {
+        return patientKeys[0]; // Retorna el primer patientId encontrado
+      }
+    }
+    return null; // Si no se encuentra, retorna null
+  }
+  async getPatientIdByEmail(email: string): Promise<string | null> {
+    const db = this.firebaseService.getDatabase();
+    const snapshot = await db.ref('patients').orderByChild('email').equalTo(email).once('value');
+  
+    console.log("🚀 ~ getPatientIdByEmail ~ snapshot.val():", snapshot.val()); // Para depuración
+  
+    if (snapshot.exists()) {
+      const patients = snapshot.val();
+      const patientKeys = Object.keys(patients);
+      if (patientKeys.length > 0) {
+        return patientKeys[0]; // Retorna el primer patientId encontrado
+      }
+    }
+    return null; // Si no se encuentra, retorna null
+  }
   async generateJwt(user: any) {
     const payload = { email: user.email, uid: user.uid };
     return this.jwtService.sign(payload);

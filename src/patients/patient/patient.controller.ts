@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';  
 import { PatientDto } from '../dto/patient.dto'; // Asegúrate de importar el DTO  
 import { PatientsService } from './patient.service';
+import { Observable } from 'rxjs';
 
 @Controller('patients')  
 export class PatientController {  
@@ -11,18 +12,14 @@ export class PatientController {
     return this.patientsService.createPatient(patientDto);  
   }  
 
-  @Get()  
-  findAll() {  
-    return this.patientsService.getPatients();  
-  }  
+  @Get()
+  getAllPatients(): Observable<any[]> {
+    return this.patientsService.getAllPatients();
+  }
 
   @Get(':id')  
   findOne(@Param('id') id: string) {  
     return this.patientsService.findPatientById(id);  
-  }  
-  @Get(':dni')  
-  find(@Param('dni') id: string) {  
-    return this.patientsService.getPatientByDni(id);  
   }  
 
   @Put(':id')  

@@ -1,5 +1,5 @@
 // doctors.controller.ts
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { DoctorsService } from './doctors.service';
 import { DoctorDto } from './dto/doctor.dto';
 
@@ -17,4 +17,10 @@ export class DoctorsController {
   async create(@Body() doctorDto: DoctorDto): Promise<DoctorDto> {
     return this.doctorsService.create(doctorDto);
   }
+
+  @Get(':id')  
+  findOne(@Param('id') id: string) {  
+    return this.doctorsService.findDoctorById(id);  
+  }  
+
 }

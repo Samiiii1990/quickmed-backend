@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';  
 import { FirebaseService } from '../../firebase/firebase.service';  
 import { PatientDto } from '../dto/patient.dto'; // Asegúrate de crear el DTO correspondiente  
+import { Observable } from 'rxjs';
 
 @Injectable()  
 export class PatientsService {  
@@ -59,14 +60,21 @@ export class PatientsService {
     return { success: true }; // Retornar respuesta de éxito  
   }  
 
-  async getPatientByDni(dni: string): Promise<any> {
+  getAllPatients(): Observable<any[]> {
     const db = this.firebaseService.getDatabase();
-    const snapshot = await db.ref('patients').once('value');
-    const patients = snapshot.val();
-  
-    // Buscar el paciente por DNI
-    const patient = Object.values(patients).find((patient: any) => patient.dni === dni);
-  
-    return patient || null; // Retorna el paciente o null si no se encuentra
+    return new Observable(observer => {
+      db.ref('patients').once('value', snapshot => {
+        if (snapshot.exists()) {
+          const patients = snapshot.val();
+          const patientsArray = Object.values(patients); // Convertir a array
+          observer.next(patientsArray);
+        } else {
+          observer.error('No patients found');
+        }
+        observer.complete();
+      });
+    });
   }
+  
+  
 }

@@ -10,13 +10,15 @@ import { DoctorsModule } from './doctors/doctors.module';
 import { DoctorsController } from './doctors/doctors.controller';
 import { DoctorsService } from './doctors/doctors.service';
 import { PatientsModule } from './patients/patients.module';
+import { UsersModule } from './users/users.module';
 @Module({
   imports: [
     AppointmentsModule,
     NotificationsModule,
     FirebaseAuthModule,
     DoctorsModule,
-    PatientsModule
+    PatientsModule,
+    UsersModule
   ],
   controllers: [AppController, AuthController, DoctorsController],
   providers: [AppService, JwtStrategy, DoctorsService],

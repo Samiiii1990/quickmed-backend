@@ -1,25 +1,23 @@
-import { Injectable, NotFoundException } from '@nestjs/common';  
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { PatientDto } from 'src/patients/dto/patient.dto';
 import { FirebaseService } from 'src/firebase/firebase.service';
+import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 
-@Injectable()  
-export class AppointmentService {  
-  constructor(private readonly firebaseService: FirebaseService) {}  
+@Injectable()
+export class AppointmentService {
+  constructor(private readonly firebaseService: FirebaseService) { }
 
   async createAppointment(patientId: string, appointmentDto: CreateAppointmentDto) {
-    // Obtener los datos del paciente
     const patientData = await this.getPatientData(patientId);
-    
-    // Aquí puedes usar patientData para cualquier lógica adicional que necesites al crear la cita
+
     const db = this.firebaseService.getDatabase();
     const newAppointmentRef = db.ref('appointments').push();
-    
-    // Guarda la cita junto con los datos del paciente
+
     await newAppointmentRef.set({
       id: newAppointmentRef.key,
       patientId,
-      patientData,  // Incluye los datos del paciente si es necesario
+      patientData,
       ...appointmentDto,
     });
 
@@ -42,23 +40,58 @@ export class AppointmentService {
 
     const appointments = snapshot.val();
     if (!appointments) {
-        return []; // Retorna un array vacío si no hay citas
+      return [];
     }
 
-    // Aseguramos que `appointments` es un objeto antes de hacer el spread
     return Object.entries(appointments).map(([key, value]) => {
-        // Verificamos que value es un objeto para evitar el error de propagación
-        if (typeof value === 'object' && value !== null) {
-            return {
-                id: key,
-                ...value, // Usamos el spread operator aquí
-            };
-        } else {
-            // Manejo de error si value no es un objeto
-            console.error(`Expected an object for appointment value with key ${key}, but got ${typeof value}.`);
-            return { id: key }; // Devuelve al menos el id
-        }
+      if (typeof value === 'object' && value !== null) {
+        return {
+          id: key,
+          ...value,
+        };
+      } else {
+        console.error(`Expected an object for appointment value with key ${key}, but got ${typeof value}.`);
+        return { id: key };
+      }
     });
-}
-  
+  }
+
+  async findById(appointmentId: string) {
+    const db = this.firebaseService.getDatabase();
+    const appointmentRef = db.ref(`appointments/${appointmentId}`);
+    
+    const snapshot = await appointmentRef.once('value');
+    if (!snapshot.exists()) {
+      throw new NotFoundException(`Appointment with ID ${appointmentId} not found`);
+    }
+
+    return {
+      id: appointmentId,
+      ...snapshot.val(),
+    };
+  }
+
+  async updateAppointment(appointmentId: string, updateDto: UpdateAppointmentDto): Promise<void> {
+    const db = this.firebaseService.getDatabase();
+    const appointmentRef = db.ref(`appointments/${appointmentId}`);
+    
+    const snapshot = await appointmentRef.once('value');
+    if (!snapshot.exists()) {
+      throw new NotFoundException(`Appointment with ID ${appointmentId} not found`);
+    }
+
+    await appointmentRef.update(updateDto);
+  }
+
+  async deleteAppointment(appointmentId: string): Promise<void> {
+    const db = this.firebaseService.getDatabase();
+    const appointmentRef = db.ref(`appointments/${appointmentId}`);
+    
+    const snapshot = await appointmentRef.once('value');
+    if (!snapshot.exists()) {
+      throw new NotFoundException(`Appointment with ID ${appointmentId} not found`);
+    }
+    await appointmentRef.remove();
+  }
+
 }

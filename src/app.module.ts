@@ -4,7 +4,6 @@ import { AppService } from './app.service';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { FirebaseAuthModule } from './firebase-auth/firebase-auth.module';
-import { JwtStrategy } from './firebase-auth/jwt.strategy';
 import { AuthController } from './firebase-auth/firebase-auth.controller';
 import { DoctorsModule } from './doctors/doctors.module';
 import { DoctorsController } from './doctors/doctors.controller';
@@ -21,6 +20,6 @@ import { UsersModule } from './users/users.module';
     UsersModule
   ],
   controllers: [AppController, AuthController, DoctorsController],
-  providers: [AppService, JwtStrategy, DoctorsService],
+  providers: [AppService, DoctorsService],
 })
-export class AppModule {}
+export class AppModule { }

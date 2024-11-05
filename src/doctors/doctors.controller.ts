@@ -6,7 +6,7 @@ import { DoctorDto } from './dto/doctor.dto';
 
 @Controller('doctors')
 export class DoctorsController {
-  constructor(private readonly doctorsService: DoctorsService) {}
+  constructor(private readonly doctorsService: DoctorsService) { }
 
   @Get()
   async findAll(): Promise<DoctorDto[]> {
@@ -18,9 +18,9 @@ export class DoctorsController {
     return this.doctorsService.create(doctorDto);
   }
 
-  @Get(':id')  
-  findOne(@Param('id') id: string) {  
-    return this.doctorsService.findDoctorById(id);  
-  }  
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.doctorsService.findDoctorById(id);
+  }
 
 }

@@ -59,7 +59,7 @@ export class AppointmentService {
   async findById(appointmentId: string) {
     const db = this.firebaseService.getDatabase();
     const appointmentRef = db.ref(`appointments/${appointmentId}`);
-    
+
     const snapshot = await appointmentRef.once('value');
     if (!snapshot.exists()) {
       throw new NotFoundException(`Appointment with ID ${appointmentId} not found`);
@@ -74,7 +74,7 @@ export class AppointmentService {
   async updateAppointment(appointmentId: string, updateDto: UpdateAppointmentDto): Promise<void> {
     const db = this.firebaseService.getDatabase();
     const appointmentRef = db.ref(`appointments/${appointmentId}`);
-    
+
     const snapshot = await appointmentRef.once('value');
     if (!snapshot.exists()) {
       throw new NotFoundException(`Appointment with ID ${appointmentId} not found`);
@@ -86,7 +86,7 @@ export class AppointmentService {
   async deleteAppointment(appointmentId: string): Promise<void> {
     const db = this.firebaseService.getDatabase();
     const appointmentRef = db.ref(`appointments/${appointmentId}`);
-    
+
     const snapshot = await appointmentRef.once('value');
     if (!snapshot.exists()) {
       throw new NotFoundException(`Appointment with ID ${appointmentId} not found`);

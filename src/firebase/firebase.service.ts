@@ -9,7 +9,7 @@ export class FirebaseService {
   public db: admin.database.Database;
 
   constructor() {
-    this.db = admin.database(); 
+    this.db = admin.database();
   }
 
   getDatabase() {

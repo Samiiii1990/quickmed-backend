@@ -13,10 +13,9 @@ dotenv.config();
       provide: FirebaseService,
       useFactory: () => {
         const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-        // Inicializar la aplicación de Firebase solo si no está ya inicializada if (!admin.apps.length) {  
         admin.initializeApp({
           credential: admin.credential.cert(serviceAccount),
-          databaseURL: process.env.FIREBASE_DATABASE_URL, // Establece la URL de la base de datos });  
+          databaseURL: process.env.FIREBASE_DATABASE_URL,
         })
 
         return new FirebaseService();

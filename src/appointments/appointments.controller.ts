@@ -1,15 +1,15 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put } from '@nestjs/common';  
+import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put } from '@nestjs/common';
 import { AppointmentService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 
-@Controller('appointments')  
-export class AppointmentController {  
-  constructor(private readonly appointmentService: AppointmentService) {}  
+@Controller('appointments')
+export class AppointmentController {
+  constructor(private readonly appointmentService: AppointmentService) { }
 
-  @Post()  
-  async create(@Body('patientId') patientId: string, @Body() appointmentDto: CreateAppointmentDto) {  
-    return this.appointmentService.createAppointment(patientId, appointmentDto);  
+  @Post()
+  async create(@Body('patientId') patientId: string, @Body() appointmentDto: CreateAppointmentDto) {
+    return this.appointmentService.createAppointment(patientId, appointmentDto);
   }
 
   @Get('patients/:patientId')
@@ -21,7 +21,7 @@ export class AppointmentController {
       throw new NotFoundException(error.message);
     }
   }
-  @Get(':id')  // Método para obtener una cita por ID
+  @Get(':id')
   async findById(@Param('id') id: string) {
     try {
       return await this.appointmentService.findById(id);
@@ -29,7 +29,7 @@ export class AppointmentController {
       throw new NotFoundException(error.message);
     }
   }
-  
+
   @Put(':id')  // Método para actualizar una cita
   async updateAppointment(@Param('id') id: string, @Body() updateDto: UpdateAppointmentDto) {
     try {

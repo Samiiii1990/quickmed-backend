@@ -1,0 +1,69 @@
+services:
+  patients:
+    build:
+      context: .
+      dockerfile:  ./src/patients/dockerfile
+    ports:
+      - "3005:3005"
+    networks:
+      - quickmed-network
+    depends_on:
+      - auth
+      - users
+
+  appointments:
+    build:
+      context: .
+      dockerfile: ./src/appointments/dockerfile
+    ports:
+      - "3001:3001"
+    networks:
+      - quickmed-network
+    depends_on:
+      - auth
+      - doctors
+      - patients
+
+  doctors:
+    build:
+      context: .
+      dockerfile: ./src/doctors/dockerfile
+    ports:
+      - "3002:3002"
+    networks:
+      - quickmed-network
+    depends_on:
+      - auth
+
+  auth:
+    build:
+      context: .
+      dockerfile: ./src/firebase-auth/dockerfile
+    ports:
+      - "3003:3003"
+    networks:
+      - quickmed-network
+
+  notifications:
+    build:
+      context: .
+      dockerfile: ./src/notifications/dockerfile
+    ports:
+      - "3004:3004"
+    networks:
+      - quickmed-network
+    depends_on:
+      - auth
+
+  users:
+    build:
+      context: .
+      dockerfile: ./src/users/dockerfile
+    ports:
+      - "3007:3007"
+    networks:
+      - quickmed-network
+
+networks:
+  quickmed-network:
+    driver: bridge

@@ -16,7 +16,7 @@ services:
       context: .
       dockerfile: ./src/appointments/dockerfile
     ports:
-      - "3001:3001"
+      - "3008:3008"
     networks:
       - quickmed-network
     depends_on:
